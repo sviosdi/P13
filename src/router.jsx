@@ -1,12 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './assets/styles/main.css'
+import { createBrowserRouter, RouterProvider, redirect } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import store from './state/store'
 
 import Homepage from './pages/Homepage'
 import Signin from './pages/Signin'
 import User from './pages/User'
 
-import { createBrowserRouter, RouterProvider, redirect } from 'react-router-dom'
+import './assets/styles/main.css'
 
 const router = createBrowserRouter([
     {
@@ -26,6 +28,8 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
     // Désactiver le mode strict en développement pour éviter la répétition des méthodes constructor(), render(), shouldComponentUpdate()
     //   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+        <RouterProvider router={router} />
+    </Provider>
     //   </React.StrictMode>
 )

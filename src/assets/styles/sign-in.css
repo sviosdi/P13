@@ -33,6 +33,7 @@
 
 .input-remember {
     display: flex;
+    align-items: baseline;
 }
 
 .input-remember label {
@@ -53,4 +54,10 @@
 .input-wrapper input {
     padding: 5px;
     font-size: 1.2rem;
+}
+
+.bad-connect {
+    color: #f65252;
+    margin-top: 15px;
+    font-size: 0.95rem;
 }

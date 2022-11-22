@@ -1,9 +1,24 @@
 import HeaderNav from '../components/HeaderNav'
 import Footer from '../components/Footer'
-
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import '../assets/styles/user.css'
+import { useSelector } from 'react-redux'
+import { connectedSelector } from '../state/userSlice'
+//import { Navigate } from 'react-router-dom'
 
 const User = () => {
+    const navigate = useNavigate()
+    const isConnected = useSelector(connectedSelector)
+    useEffect(() => {
+        if (!isConnected) {
+            //console.log('déjà connecté')
+            navigate('/')
+        }
+    }, [])
+
+    if (!isConnected) return null // <>Vous n'êtes pas authentifié. Cette page n'est pas accessible</>
+
     return (
         <>
             <HeaderNav />
