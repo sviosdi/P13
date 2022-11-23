@@ -3,21 +3,30 @@ import Footer from '../components/Footer'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../assets/styles/user.css'
-import { useSelector } from 'react-redux'
-import { connectedSelector } from '../state/userSlice'
-//import { Navigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { registerUser, userSelector } from '../state/userSlice'
+import backendService from '../api.services/api'
 
 const User = () => {
     const navigate = useNavigate()
-    const isConnected = useSelector(connectedSelector)
+    const user = useSelector(userSelector)
+    const token = user.token
+    const dispatch = useDispatch()
     useEffect(() => {
-        if (!isConnected) {
-            //console.log('déjà connecté')
+        if (token === null) {
+            console.log('non authentifié')
             navigate('/')
+        } else {
+            const fetchData = (token) => backendService.getProfile(token)
+
+            fetchData(token).then((data) => {
+                if (data.ok) dispatch(registerUser(data))
+                else {
+                    console.log('erreur de récup des données utilisateur')
+                }
+            })
         }
     }, [])
-
-    if (!isConnected) return null // <>Vous n'êtes pas authentifié. Cette page n'est pas accessible</>
 
     return (
         <>
@@ -27,7 +36,7 @@ const User = () => {
                     <h1>
                         Welcome back
                         <br />
-                        Tony Jarvis!
+                        {user.firstname} {user.lastname}
                     </h1>
                     <button className="edit-button">Edit Name</button>
                 </div>

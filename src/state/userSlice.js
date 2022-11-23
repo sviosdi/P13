@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import authService from '../api.services/api'
 
 const initialState = () => {
     const registred = localStorage.getItem('registred')
@@ -15,27 +14,22 @@ export const userSlice = createSlice({
             state.token = action.payload.token
             state.username = action.payload.username
         },
-
         disconnect: (state) => {
             state.token = null
             state.username = null
+            state.firstname = null
+            state.lastname = null
+        },
+        registerUser: (state, action) => {
+            state.firstname = action.payload.firstname
+            state.lastname = action.payload.lastname
+            state.username = action.payload.email
         },
     },
 })
 
-export const { register, disconnect } = userSlice.actions
+export const { register, disconnect, registerUser } = userSlice.actions
 
-export const connectAsync = (user) => (dispatch) =>
-    authService.authenticate(user)
-
-export const connectedSelector = (state) => state.user.username !== null
-export const getFirstnameSelector = (state) => {
-    if (state.user.username !== null) {
-        const firstname = state.user.username.trim().split('@')[0]
-        return firstname.charAt(0).toUpperCase() + firstname.slice(1)
-    }
-    return null
-}
-export const getUsernameSelector = (state) => state.user.username
+export const userSelector = (state) => state.user
 
 export default userSlice.reducer

@@ -4,12 +4,8 @@ import { useState, useEffect } from 'react'
 import HeaderNav from '../components/HeaderNav'
 import Footer from '../components/Footer'
 import { useSelector } from 'react-redux'
-import {
-    connectAsync,
-    connectedSelector,
-    register,
-    disconnect,
-} from '../state/userSlice'
+import backendService from '../api.services/api'
+import { userSelector, register, disconnect } from '../state/userSlice'
 
 import '../assets/styles/sign-in.css'
 
@@ -37,15 +33,14 @@ const Signin = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [errno, setErrno] = useState(0) // 0: pas d'erreurs, 1: mauvais identifiants, 2: server down, 3: connexion refusée
-    const isConnected = useSelector(connectedSelector)
+    const token = useSelector(userSelector).token
     useEffect(() => {
-        if (isConnected) {
-            //console.log('déjà connecté')
+        if (token !== null) {
+            console.log('déjà connecté')
             navigate('/')
         }
     }, [])
 
-    if (isConnected) return null
     return (
         <>
             <HeaderNav />
@@ -109,7 +104,7 @@ const Signin = () => {
                                     username,
                                     password,
                                 }
-                                const status = dispatch(connectAsync(user))
+                                const status = backendService.authenticate(user)
                                 status.then((authData) => {
                                     if (authData.posted && authData.ok) {
                                         // utilisateur correctement authentifié

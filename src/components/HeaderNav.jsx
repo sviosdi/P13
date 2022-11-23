@@ -1,12 +1,7 @@
 import logo from '../assets/img/argentBankLogo.png'
 import '../assets/styles/headernav.css'
 import { useSelector, useDispatch } from 'react-redux'
-import {
-    connectedSelector,
-    getFirstnameSelector,
-    disconnect,
-    getUsernameSelector,
-} from '../state/userSlice'
+import { disconnect, userSelector } from '../state/userSlice'
 import { Link, useNavigate } from 'react-router-dom'
 import { storageChangeHandler } from '../pages/Signin'
 
@@ -21,9 +16,10 @@ const removeFromConnectedUsers = (username) => {
 
 const HeaderNav = () => {
     const dispatch = useDispatch()
-    const isConnected = useSelector(connectedSelector)
-    const name = useSelector(getFirstnameSelector)
-    const username = useSelector(getUsernameSelector)
+    const user = useSelector(userSelector)
+    const token = user.token
+    const name = user.firstname
+    const username = user.username
     const navigate = useNavigate()
 
     return (
@@ -37,7 +33,7 @@ const HeaderNav = () => {
                 <h1 className="sr-only">Argent Bank</h1>
             </Link>
             <div>
-                {!isConnected ? (
+                {token === null ? (
                     <Link to="/sign-in" className="main-nav-item">
                         <i className="fa fa-user-circle"></i>
                         &nbsp;Sign In&nbsp;
