@@ -3,7 +3,6 @@ import '../assets/styles/headernav.css'
 import { useSelector, useDispatch } from 'react-redux'
 import { disconnect, userSelector } from '../state/userSlice'
 import { Link, useNavigate } from 'react-router-dom'
-import { storageChangeHandler } from '../pages/Signin'
 
 const removeFromConnectedUsers = (username) => {
     const connected = JSON.parse(localStorage.getItem('connected'))
@@ -42,7 +41,7 @@ const HeaderNav = () => {
                     <>
                         <Link to="/user" className="main-nav-item">
                             <i className="fa fa-user-circle"></i>
-                            {name}
+                            &nbsp;{name}&nbsp;
                         </Link>
                         <Link
                             to="/"
@@ -53,16 +52,13 @@ const HeaderNav = () => {
                                     localStorage.removeItem('registred')
                                 removeFromConnectedUsers(username)
                                 dispatch(disconnect())
-                                window.removeEventListener(
-                                    'storage',
-                                    storageChangeHandler
-                                )
+                                window.onstorage = null
                                 navigate('/')
                             }}
                             className="main-nav-item"
                         >
                             <i className="fa fa-sign-out"></i>
-                            Sign Out
+                            &nbsp;Sign Out&nbsp;
                         </Link>
                     </>
                 )}

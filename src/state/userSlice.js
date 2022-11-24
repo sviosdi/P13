@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = () => {
     const registred = localStorage.getItem('registred')
-    if (!registred) return { token: null, username: null }
+    if (!registred)
+        return { token: null, username: null, firstname: null, lastname: null }
     return JSON.parse(registred)
 }
 
@@ -25,10 +26,15 @@ export const userSlice = createSlice({
             state.lastname = action.payload.lastname
             state.username = action.payload.email
         },
+        updateName: (state, action) => {
+            state.firstname = action.payload.firstName
+            state.lastname = action.payload.lastName
+        },
     },
 })
 
-export const { register, disconnect, registerUser } = userSlice.actions
+export const { register, disconnect, registerUser, updateName } =
+    userSlice.actions
 
 export const userSelector = (state) => state.user
 

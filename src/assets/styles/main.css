@@ -16,6 +16,11 @@ body {
 
 }
 
+button,
+input[type="button"] {
+    cursor: pointer;
+}
+
 #root {
     display: flex;
     flex-direction: column;

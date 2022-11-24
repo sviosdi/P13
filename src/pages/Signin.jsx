@@ -34,9 +34,11 @@ const Signin = () => {
     const dispatch = useDispatch()
     const [errno, setErrno] = useState(0) // 0: pas d'erreurs, 1: mauvais identifiants, 2: server down, 3: connexion refusée
     const token = useSelector(userSelector).token
+
     useEffect(() => {
         if (token !== null) {
-            console.log('déjà connecté')
+            // console.log('déjà connecté ou enregistré, mais nouvel accès à la page')
+            // l'ajout du listener sur le storage ce fera lors de la redirection sur homepage
             navigate('/')
         }
     }, [])
@@ -113,11 +115,9 @@ const Signin = () => {
                                             username,
                                             navigate,
                                         }
+                                        // peu importe la valeur de remember
+                                        window.onstorage = storageChangeHandler
 
-                                        window.addEventListener(
-                                            'storage',
-                                            storageChangeHandler
-                                        )
                                         setErrno(1)
                                         setErrno(2)
                                         const registred = JSON.parse(
@@ -159,10 +159,7 @@ const Signin = () => {
                                                     navigate('/user')
                                                 } else {
                                                     //refuser la connexion
-                                                    window.removeEventListener(
-                                                        'storage',
-                                                        storageChangeHandler
-                                                    )
+                                                    window.onstorage = null
                                                     setErrno(3)
                                                 }
                                             } else {

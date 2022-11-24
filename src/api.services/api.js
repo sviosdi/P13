@@ -56,6 +56,15 @@ class BackendService {
                 else return { posted: false } // server down
             })
     }
+
+    udpateName = async (token, body) => {
+        const config = { headers: { Authorization: `Bearer ${token}` } }
+        return axios
+            .put(BASE_URL + '/user/profile', body, config)
+            .then(({ data }) => {
+                return data.status === 200
+            })
+    }
 }
 
 export default new BackendService()
