@@ -7,6 +7,7 @@ import store from './state/store'
 import Homepage from './pages/Homepage'
 import Signin from './pages/Signin'
 import User from './pages/User'
+import Checking from './pages/Checking'
 
 import './assets/styles/main.css'
 
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
     {
         path: '/user',
         element: <User />,
+    },
+    {
+        path: '/checking',
+        element: <Checking />,
     },
 ])
 

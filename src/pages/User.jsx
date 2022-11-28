@@ -17,8 +17,8 @@ const User = () => {
         firstName: '',
         lastName: '',
     })
-
-    let titleMessage = `${user.firstname} ${user.lastname}`
+    const [balance, setBalance] = useState(0)
+    const [titleMessage, setTitleMessage] = useState(``)
 
     const title = document.querySelector('#header-title')
     const editButton = document.querySelector('#edit-name')
@@ -31,7 +31,7 @@ const User = () => {
         } else {
             // un utilisateur est déjà connecté ou enregistré
             // console.log(
-            //   "accès à 'user' alors qu'un utilisateur est déjà enregistré"
+            //   "accès à 'user' alors qu'un utilisateur est déjà connecté/enregistré"
             // )
 
             if (!window.onstorage) {
@@ -48,11 +48,12 @@ const User = () => {
             } else {
                 // console.log('un listener sur le storage est déjà enregistré')
             }
-            const fetchData = (token) => backendService.getProfile(token)
 
-            fetchData(token).then((data) => {
+            backendService.getProfile(token).then((data) => {
                 if (data.ok) {
                     dispatch(registerUser(data))
+                    setTitleMessage(`${user.firstname} ${user.lastname}`)
+
                     const registred = JSON.parse(
                         window.localStorage.getItem('registred')
                     )
@@ -72,10 +73,25 @@ const User = () => {
                 }
             })
         }
-    }, [])
+    }, [user.firstname, user.lastname])
 
-    const editHandler = (ev) => {
-        titleMessage = ''
+    useEffect(() => {
+        if (token === null) {
+            // console.log('non authentifié')
+            navigate('/')
+        } else {
+            backendService.getCheckingBalance(token).then((data) => {
+                if (data.ok) {
+                    setBalance(data.balance)
+                } else {
+                    console.log('erreur de récup des données utilisateur')
+                }
+            })
+        }
+    }, [balance])
+
+    const editButtonHandler = (ev) => {
+        setTitleMessage('')
         editButton.style.display = 'none'
         editZone.style.display = 'flex'
         title.style.marginBottom = '0px'
@@ -91,15 +107,16 @@ const User = () => {
         const ok = await backendService.udpateName(token, name)
         if (ok) {
             dispatch(updateName(name))
+            setTitleMessage(`${user.firstname} ${user.lastname}`)
             cancelHandler()
         }
     }
 
     const cancelHandler = (ev) => {
-        titleMessage = `${user.firstname} ${user.lastname}`
         editButton.style.display = 'inline-block'
         editZone.style.display = 'none'
         title.style.marginBottom = '20px'
+        setTitleMessage(`${user.firstname} ${user.lastname}`)
     }
 
     return (
@@ -148,7 +165,7 @@ const User = () => {
                     </div>
                     <button
                         id="edit-name"
-                        onClick={editHandler}
+                        onClick={editButtonHandler}
                         className="edit-button"
                     >
                         Edit Name
@@ -160,13 +177,16 @@ const User = () => {
                         <h3 className="account-title">
                             Argent Bank Checking (x8349)
                         </h3>
-                        <p className="account-amount">$2,082.79</p>
+                        <p className="account-amount">€{balance}</p>
                         <p className="account-amount-description">
                             Available Balance
                         </p>
                     </div>
                     <div className="account-content-wrapper cta">
-                        <button className="transaction-button">
+                        <button
+                            onClick={() => navigate('/checking')}
+                            className="transaction-button"
+                        >
                             View transactions
                         </button>
                     </div>

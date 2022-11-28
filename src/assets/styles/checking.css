@@ -1,0 +1,106 @@
+.transacs-header {
+    background: white;
+    padding: 20px 0px;
+    border-top: solid 1px #666;
+}
+
+.transactions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.transactions>table {
+    width: 80%;
+    margin: 40px 15px;
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.transactions>table>tbody {
+    background: white;
+}
+
+.transactions>table thead {
+    background-color: #12002b;
+    color: white;
+    border: 0px;
+}
+
+.transactions>table thead tr {
+    border: 0px;
+    height: 30px;
+}
+
+.transactions>table thead th {
+    border: 0px;
+}
+
+.transactions>table>tbody tr {
+    height: 45px;
+    cursor: pointer;
+}
+
+.transactions>table td {
+    border: 0px;
+}
+
+.transactions table>tbody>tr>td:first-child {
+    width: 50px;
+    padding-left: 10px;
+}
+
+.transactions table>tbody>tr>td:first-child>img {
+    width: 15px;
+}
+
+.transactions>table .tr-closed {
+    border: solid 1px #999;
+}
+
+.tr-opened {
+    border-bottom: solid 1px white;
+}
+
+.tr-type,
+.tr-cat {
+    font-size: 14px;
+    text-align: left;
+}
+
+.tr-notes {
+    font-size: 14px;
+    text-align: left;
+}
+
+
+.tr-type>td:nth-child(2),
+.tr-cat>td:nth-child(2),
+.tr-notes>td:nth-child(2) {
+    padding-left: 25px;
+}
+
+table img {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+.tr-notes input {
+    margin-left: 6px;
+    font-size: 14px;
+    font-family: Avenir, Helvetica, sans-serif;
+    color: #222;
+    width: 50%;
+    min-width: 150px;
+}
+
+.tr-notes input:focus-visible {
+    outline: 0px;
+}
+
+.tr-notes span {
+    display: inline-block;
+    height: 25px;
+    margin-left: 10px;
+}

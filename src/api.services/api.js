@@ -64,6 +64,88 @@ class BackendService {
             .then(({ data }) => {
                 return data.status === 200
             })
+            .catch((error) => {
+                if (
+                    error.response &&
+                    error.response.data &&
+                    error.response.data.status === 401 // invalid token
+                )
+                    return {
+                        ok: false,
+                        msg: error.response.data.message,
+                    }
+                else return { posted: false } // server down
+            })
+    }
+
+    getCheckingBalance = async (token, body) => {
+        const config = { headers: { Authorization: `Bearer ${token}` } }
+        return axios
+            .post(BASE_URL + '/transactions/getcheckingbalance', body, config)
+            .then(({ data }) => {
+                return {
+                    ok: true,
+                    balance: data.body.balance,
+                }
+            })
+            .catch((error) => {
+                if (
+                    error.response &&
+                    error.response.data &&
+                    error.response.data.status === 401 // invalid token
+                )
+                    return {
+                        ok: false,
+                        msg: error.response.data.message,
+                    }
+                else return { posted: false } // server down
+            })
+    }
+
+    getTransactions = async (token) => {
+        const config = { headers: { Authorization: `Bearer ${token}` } }
+        return axios
+            .post(BASE_URL + '/transactions/getall', {}, config)
+            .then(({ data }) => {
+                return {
+                    ok: true,
+                    transactions: data.body,
+                }
+            })
+            .catch((error) => {
+                if (
+                    error.response &&
+                    error.response.data &&
+                    error.response.data.status === 401 // invalid token
+                )
+                    return {
+                        ok: false,
+                        msg: error.response.data.message,
+                    }
+                else return { posted: false } // server down
+            })
+    }
+
+    udpateTransac = async (token, body) => {
+        const config = { headers: { Authorization: `Bearer ${token}` } }
+        return axios
+            .put(BASE_URL + '/transactions/update', body, config)
+            .then(({ data }) => {
+                console.log(data)
+                return data.status === 200
+            })
+            .catch((error) => {
+                if (
+                    error.response &&
+                    error.response.data &&
+                    error.response.data.status === 401 // invalid token
+                )
+                    return {
+                        ok: false,
+                        msg: error.response.data.message,
+                    }
+                else return { posted: false } // server down
+            })
     }
 }
 
