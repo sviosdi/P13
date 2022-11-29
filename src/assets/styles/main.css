@@ -16,6 +16,10 @@ body {
 
 }
 
+table {
+    border-spacing: 0px;
+}
+
 button,
 input[type="button"] {
     cursor: pointer;
