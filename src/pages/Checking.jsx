@@ -163,9 +163,22 @@ const OneTransac = ({
     cat,
     notes,
 }) => {
+    const catLabels = [
+        ['c0', 'Choisir une catégorie'],
+        ['c1', 'Énergie'],
+        ['c2', 'Logement'],
+        ['c3', 'Hyper/Supermarché'],
+        ['c4', 'Assurances'],
+        ['c5', 'Véhicule'],
+        ['c6', 'High-Tech'],
+        ['c7', 'Achats online'],
+    ]
+
+    const catLabelsMap = new Map(catLabels)
     const [editState, setEditState] = useState({
         catEditing: false,
         catValue: cat,
+        catLabel: cat !== '' ? catLabelsMap.get(cat) : '',
         notesEditing: false,
         notesValue: notes,
     })
@@ -173,6 +186,7 @@ const OneTransac = ({
     const user = useSelector(userSelector)
     const token = user.token
 
+    // gère l'ouverture/fermeture d'une ligne transaction pour permettre l'édition category/notes
     const handleEditTransac = (ev, idTransac) => {
         if (!openedTransacState.openedTransac) {
             openedTransacState.setOpenedTransac(idTransac)
@@ -223,25 +237,36 @@ const OneTransac = ({
                         <td colSpan="5">
                             Category:
                             {!editState.catEditing ? (
-                                cat
+                                <span>{editState.catLabel}</span>
                             ) : (
-                                <select>
-                                    <option value="v1">
-                                        Choisir une catégorie
-                                    </option>
-                                    <option value="Énergie">Énergie</option>
-                                    <option value="Logement">Logement</option>
-                                    <option value="Hyper/Supermarché">
-                                        Hyper/Supermarché
-                                    </option>
-                                    <option value="Assurances">
-                                        Assurances
-                                    </option>
-                                    <option value="Achats online">
-                                        Achats online
-                                    </option>
-                                    <option value="High-tech">High-tech</option>
-                                    <option value="Véhicule">Véhicule</option>
+                                <select
+                                    value={editState.catValue}
+                                    onChange={(ev) => {
+                                        setEditState((s) => ({
+                                            ...s,
+                                            catLabel:
+                                                ev.target[
+                                                    ev.target.selectedIndex
+                                                ].label,
+                                            catValue: ev.target.value,
+                                            catEditing: !s.catEditing,
+                                        }))
+                                        backendService
+                                            .udpateTransac(token, {
+                                                _id: id,
+                                                notes,
+                                                category: ev.target.value,
+                                            })
+                                            .then((data) => {
+                                                console.log(data)
+                                            })
+                                    }}
+                                >
+                                    {catLabels.map((el) => (
+                                        <option key={el[0]} value={el[0]}>
+                                            {el[1]}
+                                        </option>
+                                    ))}
                                 </select>
                             )}
                             <img
@@ -296,21 +321,8 @@ const OneTransac = ({
                                             })
                                             .then((data) => {
                                                 console.log(data)
-                                                /* if (data.ok) { data= true/false
-                                                    console.log(
-                                                        'notes mis à jours'
-                                                    )
-                                                } else {
-                                                    console.log(
-                                                        'erreur de récup des données utilisateur'
-                                                    )*
-                                                }*/
                                             })
 
-                                        /*console.log(
-                                            'sauvegarder : ',
-                                            editState.notesValue
-                                        )*/
                                         setEditState((s) => ({
                                             ...s,
                                             notesEditing: !s.notesEditing,
