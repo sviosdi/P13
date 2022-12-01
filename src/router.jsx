@@ -25,7 +25,7 @@ const router = createBrowserRouter([
         element: <User />,
     },
     {
-        path: '/checking',
+        path: '/account/:type',
         element: <Checking />,
     },
 ])

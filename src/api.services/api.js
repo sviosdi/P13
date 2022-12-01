@@ -78,10 +78,10 @@ class BackendService {
             })
     }
 
-    getCheckingBalance = async (token, body) => {
+    getBalance = async (token, body) => {
         const config = { headers: { Authorization: `Bearer ${token}` } }
         return axios
-            .post(BASE_URL + '/transactions/getcheckingbalance', body, config)
+            .post(BASE_URL + '/transactions/balance', body, config)
             .then(({ data }) => {
                 return {
                     ok: true,
@@ -102,10 +102,10 @@ class BackendService {
             })
     }
 
-    getTransactions = async (token) => {
+    getTransactions = async (token, body) => {
         const config = { headers: { Authorization: `Bearer ${token}` } }
         return axios
-            .post(BASE_URL + '/transactions/getall', {}, config)
+            .post(BASE_URL + '/transactions/getall', body, config)
             .then(({ data }) => {
                 return {
                     ok: true,
@@ -126,7 +126,7 @@ class BackendService {
             })
     }
 
-    udpateTransac = async (token, body) => {
+    updateTransac = async (token, body) => {
         const config = { headers: { Authorization: `Bearer ${token}` } }
         return axios
             .put(BASE_URL + '/transactions/update', body, config)

@@ -2,17 +2,19 @@ import HeaderNav from '../components/HeaderNav'
 import backendService from '../api.services/api'
 import Footer from '../components/Footer'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import '../assets/styles/checking.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { registerUser, updateName, userSelector } from '../state/userSlice'
+import { userSelector } from '../state/userSlice'
 import { storageChangeHandler } from './Signin'
 import chevronUp from '../assets/img/chevron-up.svg'
 import chevronDown from '../assets/img/chevron-down.svg'
 import edit from '../assets/img/edit.svg'
 import send from '../assets/img/send.svg'
+let TYPE_ACCOUNT = ''
 
 const Checking = () => {
+    const { type: type_account } = useParams()
     const navigate = useNavigate()
     const user = useSelector(userSelector)
     const token = user.token
@@ -46,13 +48,15 @@ const Checking = () => {
             }
         }
 
-        backendService.getTransactions(token).then((data) => {
-            if (data.ok) {
-                setTransactions(data.transactions)
-            } else {
-                console.log('erreur de récup des transactions')
-            }
-        })
+        backendService
+            .getTransactions(token, { type: type_account })
+            .then((data) => {
+                if (data.ok) {
+                    setTransactions(data.transactions)
+                } else {
+                    console.log('erreur de récup des transactions')
+                }
+            })
     }, [])
 
     useEffect(() => {
@@ -60,13 +64,15 @@ const Checking = () => {
             // console.log('non authentifié')
             navigate('/')
         } else {
-            backendService.getCheckingBalance(token).then((data) => {
-                if (data.ok) {
-                    setBalance(data.balance)
-                } else {
-                    console.log('erreur de récup des données utilisateur')
-                }
-            })
+            backendService
+                .getBalance(token, { type: type_account })
+                .then((data) => {
+                    if (data.ok) {
+                        setBalance(data.balance)
+                    } else {
+                        console.log('erreur de récup des données utilisateur')
+                    }
+                })
         }
     }, [balance])
 
@@ -80,7 +86,10 @@ const Checking = () => {
             </div>
             <main className="main bg-dark">
                 <div className="transactions">
-                    <Transactions transactions={transactions} />
+                    <Transactions
+                        transactions={transactions}
+                        type_account={type_account}
+                    />
                 </div>
             </main>
 
@@ -89,10 +98,9 @@ const Checking = () => {
     )
 }
 
-const Transactions = ({ transactions }) => {
+const Transactions = ({ transactions, type_account }) => {
     const [openedTransac, setOpenedTransac] = useState(null)
     const openedTransacState = { openedTransac, setOpenedTransac }
-
     return (
         <table>
             <thead>
@@ -134,6 +142,7 @@ const Transactions = ({ transactions }) => {
 
                     return (
                         <OneTransac
+                            type_account={type_account}
                             openedTransacState={openedTransacState}
                             key={t._id}
                             id={t._id}
@@ -153,6 +162,7 @@ const Transactions = ({ transactions }) => {
 }
 
 const OneTransac = ({
+    type_account,
     openedTransacState,
     id,
     date,
@@ -193,6 +203,8 @@ const OneTransac = ({
         } else {
             if (openedTransacState.openedTransac === idTransac) {
                 // clic sur transaction ouverte => la fermer
+                editState.notesEditing = false
+                editState.catEditing = false
                 openedTransacState.setOpenedTransac(null)
             } else {
                 // marquer ouverte la nouvelle transaction cliquée
@@ -252,7 +264,8 @@ const OneTransac = ({
                                             catEditing: !s.catEditing,
                                         }))
                                         backendService
-                                            .udpateTransac(token, {
+                                            .updateTransac(token, {
+                                                type: type_account,
                                                 _id: id,
                                                 notes,
                                                 category: ev.target.value,
@@ -314,7 +327,8 @@ const OneTransac = ({
                                 <img
                                     onClick={(ev) => {
                                         backendService
-                                            .udpateTransac(token, {
+                                            .updateTransac(token, {
+                                                type: type_account,
                                                 _id: id,
                                                 notes: editState.notesValue,
                                                 cat,
