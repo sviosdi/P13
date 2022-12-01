@@ -104,3 +104,14 @@ table img {
     height: 25px;
     margin-left: 10px;
 }
+
+.tr-cat span {
+    margin-left: 10px;
+}
+
+.tr-cat select {
+    margin-left: 5px;
+    font-size: 14px;
+    font-family: Avenir, Helvetica, sans-serif;
+    color: #222;
+}

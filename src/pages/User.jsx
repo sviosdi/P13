@@ -80,13 +80,15 @@ const User = () => {
             // console.log('non authentifié')
             navigate('/')
         } else {
-            backendService.getCheckingBalance(token).then((data) => {
-                if (data.ok) {
-                    setBalance(data.balance)
-                } else {
-                    console.log('erreur de récup des données utilisateur')
-                }
-            })
+            backendService
+                .getBalance(token, { type: 'checking' })
+                .then((data) => {
+                    if (data.ok) {
+                        setBalance(data.balance)
+                    } else {
+                        console.log('erreur de récup des données utilisateur')
+                    }
+                })
         }
     }, [balance])
 
@@ -184,7 +186,7 @@ const User = () => {
                     </div>
                     <div className="account-content-wrapper cta">
                         <button
-                            onClick={() => navigate('/checking')}
+                            onClick={() => navigate('/account/checking')}
                             className="transaction-button"
                         >
                             View transactions

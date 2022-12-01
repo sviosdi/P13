@@ -2,17 +2,19 @@ import HeaderNav from '../components/HeaderNav'
 import backendService from '../api.services/api'
 import Footer from '../components/Footer'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import '../assets/styles/checking.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { registerUser, updateName, userSelector } from '../state/userSlice'
+import { userSelector } from '../state/userSlice'
 import { storageChangeHandler } from './Signin'
 import chevronUp from '../assets/img/chevron-up.svg'
 import chevronDown from '../assets/img/chevron-down.svg'
 import edit from '../assets/img/edit.svg'
 import send from '../assets/img/send.svg'
+let TYPE_ACCOUNT = ''
 
 const Checking = () => {
+    const { type: type_account } = useParams()
     const navigate = useNavigate()
     const user = useSelector(userSelector)
     const token = user.token
@@ -46,13 +48,15 @@ const Checking = () => {
             }
         }
 
-        backendService.getTransactions(token).then((data) => {
-            if (data.ok) {
-                setTransactions(data.transactions)
-            } else {
-                console.log('erreur de récup des transactions')
-            }
-        })
+        backendService
+            .getTransactions(token, { type: type_account })
+            .then((data) => {
+                if (data.ok) {
+                    setTransactions(data.transactions)
+                } else {
+                    console.log('erreur de récup des transactions')
+                }
+            })
     }, [])
 
     useEffect(() => {
@@ -60,13 +64,15 @@ const Checking = () => {
             // console.log('non authentifié')
             navigate('/')
         } else {
-            backendService.getCheckingBalance(token).then((data) => {
-                if (data.ok) {
-                    setBalance(data.balance)
-                } else {
-                    console.log('erreur de récup des données utilisateur')
-                }
-            })
+            backendService
+                .getBalance(token, { type: type_account })
+                .then((data) => {
+                    if (data.ok) {
+                        setBalance(data.balance)
+                    } else {
+                        console.log('erreur de récup des données utilisateur')
+                    }
+                })
         }
     }, [balance])
 
@@ -80,7 +86,10 @@ const Checking = () => {
             </div>
             <main className="main bg-dark">
                 <div className="transactions">
-                    <Transactions transactions={transactions} />
+                    <Transactions
+                        transactions={transactions}
+                        type_account={type_account}
+                    />
                 </div>
             </main>
 
@@ -89,10 +98,9 @@ const Checking = () => {
     )
 }
 
-const Transactions = ({ transactions }) => {
+const Transactions = ({ transactions, type_account }) => {
     const [openedTransac, setOpenedTransac] = useState(null)
     const openedTransacState = { openedTransac, setOpenedTransac }
-
     return (
         <table>
             <thead>
@@ -134,6 +142,7 @@ const Transactions = ({ transactions }) => {
 
                     return (
                         <OneTransac
+                            type_account={type_account}
                             openedTransacState={openedTransacState}
                             key={t._id}
                             id={t._id}
@@ -153,6 +162,7 @@ const Transactions = ({ transactions }) => {
 }
 
 const OneTransac = ({
+    type_account,
     openedTransacState,
     id,
     date,
@@ -163,9 +173,22 @@ const OneTransac = ({
     cat,
     notes,
 }) => {
+    const catLabels = [
+        ['c0', 'Choisir une catégorie'],
+        ['c1', 'Énergie'],
+        ['c2', 'Logement'],
+        ['c3', 'Hyper/Supermarché'],
+        ['c4', 'Assurances'],
+        ['c5', 'Véhicule'],
+        ['c6', 'High-Tech'],
+        ['c7', 'Achats online'],
+    ]
+
+    const catLabelsMap = new Map(catLabels)
     const [editState, setEditState] = useState({
         catEditing: false,
         catValue: cat,
+        catLabel: cat !== '' ? catLabelsMap.get(cat) : '',
         notesEditing: false,
         notesValue: notes,
     })
@@ -173,12 +196,15 @@ const OneTransac = ({
     const user = useSelector(userSelector)
     const token = user.token
 
+    // gère l'ouverture/fermeture d'une ligne transaction pour permettre l'édition category/notes
     const handleEditTransac = (ev, idTransac) => {
         if (!openedTransacState.openedTransac) {
             openedTransacState.setOpenedTransac(idTransac)
         } else {
             if (openedTransacState.openedTransac === idTransac) {
                 // clic sur transaction ouverte => la fermer
+                editState.notesEditing = false
+                editState.catEditing = false
                 openedTransacState.setOpenedTransac(null)
             } else {
                 // marquer ouverte la nouvelle transaction cliquée
@@ -223,25 +249,37 @@ const OneTransac = ({
                         <td colSpan="5">
                             Category:
                             {!editState.catEditing ? (
-                                cat
+                                <span>{editState.catLabel}</span>
                             ) : (
-                                <select>
-                                    <option value="v1">
-                                        Choisir une catégorie
-                                    </option>
-                                    <option value="Énergie">Énergie</option>
-                                    <option value="Logement">Logement</option>
-                                    <option value="Hyper/Supermarché">
-                                        Hyper/Supermarché
-                                    </option>
-                                    <option value="Assurances">
-                                        Assurances
-                                    </option>
-                                    <option value="Achats online">
-                                        Achats online
-                                    </option>
-                                    <option value="High-tech">High-tech</option>
-                                    <option value="Véhicule">Véhicule</option>
+                                <select
+                                    value={editState.catValue}
+                                    onChange={(ev) => {
+                                        setEditState((s) => ({
+                                            ...s,
+                                            catLabel:
+                                                ev.target[
+                                                    ev.target.selectedIndex
+                                                ].label,
+                                            catValue: ev.target.value,
+                                            catEditing: !s.catEditing,
+                                        }))
+                                        backendService
+                                            .updateTransac(token, {
+                                                type: type_account,
+                                                _id: id,
+                                                notes,
+                                                category: ev.target.value,
+                                            })
+                                            .then((data) => {
+                                                console.log(data)
+                                            })
+                                    }}
+                                >
+                                    {catLabels.map((el) => (
+                                        <option key={el[0]} value={el[0]}>
+                                            {el[1]}
+                                        </option>
+                                    ))}
                                 </select>
                             )}
                             <img
@@ -289,28 +327,16 @@ const OneTransac = ({
                                 <img
                                     onClick={(ev) => {
                                         backendService
-                                            .udpateTransac(token, {
+                                            .updateTransac(token, {
+                                                type: type_account,
                                                 _id: id,
                                                 notes: editState.notesValue,
                                                 cat,
                                             })
                                             .then((data) => {
                                                 console.log(data)
-                                                /* if (data.ok) { data= true/false
-                                                    console.log(
-                                                        'notes mis à jours'
-                                                    )
-                                                } else {
-                                                    console.log(
-                                                        'erreur de récup des données utilisateur'
-                                                    )*
-                                                }*/
                                             })
 
-                                        /*console.log(
-                                            'sauvegarder : ',
-                                            editState.notesValue
-                                        )*/
                                         setEditState((s) => ({
                                             ...s,
                                             notesEditing: !s.notesEditing,
